@@ -1,7 +1,7 @@
 {
     "name": "${environmentName}",
     "description": "Matomo (Piwik)",
-    "version": "2016-06-26a",
+    "version": "3.5.1",
     "author": "https://github.com/happyaron",
     "containers": [
         {
