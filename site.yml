@@ -1,0 +1,105 @@
+# Ansible Playbook for Subutai Matomo blueprint
+---
+
+- hosts: all
+  gather_facts: false
+  remote_user: root
+  tasks: 
+
+    - name: Install tools
+      apt:
+        name: "{{ item }}"
+        state: latest
+      with_items: 
+        - php-fpm
+        - ucf
+        - debconf
+        - php-gd
+        - php-xml
+        - php-curl
+        - php-geoip
+        - php-mysql
+        - php-mbstring
+        - php-opcache
+        - php-readline
+        - php-json
+        - php-cli
+        - wget
+        - apache2
+        - unzip
+        - mariadb-server
+
+    - name: Enable mod_rewrite                                                            
+      apache2_module:                                                                     
+        name: rewrite                                                                     
+        state: present                                                                    
+                                                                                          
+    - name: Enable proxy_fcgi                                                             
+      apache2_module:                                                                     
+        name: proxy_fcgi                                                                  
+        state: present                                                                    
+                                                                                          
+    - name: Enable setenvif                                                               
+      apache2_module:                                                                     
+        name: setenvif                                                                    
+        state: present                                                                    
+                                                                                          
+    - name: Disable mpm_prefork                                                           
+      apache2_module:                                                                     
+        name: mpm_prefork                                                                 
+        state: absent                                                                     
+        ignore_configcheck: True
+    - name: Enable mpm_event                                                              
+      apache2_module:                                                                     
+        name: mpm_event                                                                   
+        state: present                                                                    
+        ignore_configcheck: True                                                          
+                                                                                          
+    - name: Use php7.0-fpm                                                                
+      file:                                                                               
+        state: link                                                                       
+        src: /etc/apache2/conf-available/php7.0-fpm.conf                                  
+        dest: /etc/apache2/conf-enabled/php7.0-fpm.conf                                   
+        force: yes
+
+- hosts: all
+  remote_user: root
+  tasks: 
+    - name: Set root password
+      mysql_user:
+        name: root
+        password: "subutai"
+        login_password: "subutai"
+        check_implicit_admin: yes
+        state: present
+
+    - name: Allow access from network
+      raw: mysql -u root -p -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY 'subutai'; FLUSH PRIVILEGES";
+      ignore_errors: yes
+
+    - name: Download and unzip
+      unarchive: 
+        src: "https://builds.matomo.org/piwik.zip"
+        dest: "/tmp"
+        remote_src: yes
+        validate_certs: no
+
+    - name: Clean artifact path
+      file:
+        state: absent
+        path: /var/www/html/index.html
+
+    - name: Copy application content                                                          
+      copy:                                                                               
+        src: /tmp/piwik/
+        dest: /var/www/html/
+        owner: www-data
+        group: www-data
+        mode: 0644
+                                                                                          
+    - name: Restart apache                                                                
+      service:                                                                            
+        name: apache2                                                                     
+        state: restarted
+
+# vim: ts=2 et nowrap autoindent
