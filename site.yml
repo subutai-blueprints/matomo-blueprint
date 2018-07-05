@@ -24,6 +24,7 @@
         - php-readline
         - php-json
         - php-cli
+        - python-mysqldb
         - wget
         - apache2
         - unzip
