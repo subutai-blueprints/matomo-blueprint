@@ -90,13 +90,8 @@
         state: absent
         path: /var/www/html/index.html
 
-    - name: Copy application content                                                          
-      copy:                                                                               
-        src: /tmp/piwik/
-        dest: /var/www/html/
-        owner: www-data
-        group: www-data
-        mode: 0644
+    - name: Copy application content
+      raw: mkdir -p /var/www/html/ && rm -rf /var/www/html/* && mv /tmp/piwik/* /var/www/html/ && chown -R www-data:www-data /var/www/html
                                                                                           
     - name: Restart apache                                                                
       service:                                                                            
