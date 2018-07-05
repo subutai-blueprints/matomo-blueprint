@@ -75,7 +75,7 @@
         state: present
 
     - name: Allow access from network
-      raw: mysql -u root -p -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY 'subutai'; FLUSH PRIVILEGES";
+      raw: mysql -u root -p"subutai" -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY 'subutai'; FLUSH PRIVILEGES;";
       ignore_errors: yes
 
     - name: Download and unzip
