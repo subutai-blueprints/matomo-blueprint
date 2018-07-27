@@ -10,6 +10,8 @@
       apt:
         name: "{{ item }}"
         state: latest
+        update_cache: yes
+        dpkg_options: force-confdef,force-confold,force-unsafe-io
       with_items: 
         - php-fpm
         - ucf
